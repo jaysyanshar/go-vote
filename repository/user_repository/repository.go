@@ -5,6 +5,8 @@ import (
 	"errors"
 	"github.com/go-redis/redis/v8"
 	"go-vote/infra"
+	"go-vote/infra/db"
+	redis2 "go-vote/infra/redis"
 
 	"github.com/labstack/gommon/log"
 
@@ -22,14 +24,17 @@ type repository struct {
 	Redis *redis.Client
 }
 
+const (
+	userCacheExpirationSecond = 30
+)
+
 func Init(inf *infra.Infra) UserRepository {
 	repo := &repository{inf.Db, inf.Redis}
 	return repo
 }
 
 func (r *repository) Insert(user *model.InsertUserDb) (int64, error) {
-	const query = "insert into users (name, email, password) values (?, ?, ?);"
-	stmt, err := r.Db.Prepare(query)
+	stmt, err := r.Db.Prepare(db.QueryUserInsert)
 	if err != nil {
 		log.Errorf("failed to prepare db statement: %v", err)
 		return 0, err
@@ -50,13 +55,52 @@ func (r *repository) Insert(user *model.InsertUserDb) (int64, error) {
 }
 
 func (r *repository) FindByEmail(email string) (*model.FindUserDb, error) {
-	const query = "select id, name, email, password from users where email = ?;"
-	return r.find(query, email)
+	redisKey := redis2.GetKeyUserFindByEmail(email)
+	cache, _ := r.findCache(redisKey)
+	if cache != nil {
+		return cache, nil
+	}
+	data, err := r.find(db.QueryUserFindByEmail, email)
+	if err != nil {
+		return nil, err
+	}
+	_ = r.setCache(redisKey, *data)
+	return data, nil
 }
 
 func (r *repository) FindById(id int64) (*model.FindUserDb, error) {
-	const query = "select id, name, email, password from users where password = ?;"
-	return r.find(query, id)
+	redisKey := redis2.GetKeyUserFindById(id)
+	cache, _ := r.findCache(redisKey)
+	if cache != nil {
+		return cache, nil
+	}
+	data, err := r.find(db.QueryUserFindById, id)
+	if err != nil {
+		return nil, err
+	}
+	_ = r.setCache(redisKey, *data)
+	return data, nil
+}
+
+func (r *repository) findCache(key string) (*model.FindUserDb, error) {
+	user := &model.FindUserDb{}
+	err := redis2.Get(r.Redis, key, &user)
+	if err != nil {
+		log.Warnf("redis cache not found")
+		return nil, err
+	}
+	log.Infof("redis cache found with key %s", key)
+	return user, nil
+}
+
+func (r *repository) setCache(key string, value model.FindUserDb) error {
+	err := redis2.Set(r.Redis, key, value, userCacheExpirationSecond)
+	if err != nil {
+		log.Warnf("failed to set redis cache")
+		return err
+	}
+	log.Infof("success set redis cache with key %s", key)
+	return nil
 }
 
 func (r *repository) find(query string, arg interface{}) (*model.FindUserDb, error) {
