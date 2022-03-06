@@ -1,7 +1,7 @@
 package user_handler
 
 import (
-	"database/sql"
+	"go-vote/infra"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -13,8 +13,8 @@ import (
 
 var service user_service.UserService
 
-func Init(db *sql.DB) {
-	repo := user_repository.Init(db)
+func Init(inf *infra.Infra) {
+	repo := user_repository.Init(inf)
 	service = user_service.Init(&repo)
 }
 

@@ -10,7 +10,7 @@ import (
 	"go-vote/config"
 )
 
-func LoadDb(cfg config.Config) (*sql.DB, error) {
+func Init(cfg config.Config) (*sql.DB, error) {
 	db, err := sql.Open(cfg.DbDriver, cfg.DbSource)
 	if err != nil {
 		log.Errorf("failed to connect to database: %v", err)
