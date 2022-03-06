@@ -9,12 +9,19 @@ import (
 )
 
 const (
-	groupPrefix = "users"
+	groupUser = "/user"
+	groupAuth = "/auth"
 )
 
 func Init(e *echo.Echo, inf *infra.Infra) {
 	user_handler.Init(inf)
-	group := e.Group(groupPrefix)
-	group.POST("/register", user_handler.Register)
-	group.GET("/profile/:id", user_handler.GetProfile)
+
+	// ~/user group
+	user := e.Group(groupUser)
+	user.POST("/register", user_handler.Register)
+	user.GET("/profile/:id", user_handler.GetProfile)
+
+	// ~/user/auth group
+	auth := user.Group(groupAuth)
+	auth.POST("/login", user_handler.Login)
 }

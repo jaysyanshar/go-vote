@@ -42,3 +42,17 @@ func GetProfile(c echo.Context) error {
 	}
 	return c.JSON(res.Status, res)
 }
+
+func Login(c echo.Context) error {
+	username := c.Request().Header.Get("Username")
+	password := c.Request().Header.Get("Password")
+	req := &model.LoginUserReq{
+		Email:    username,
+		Password: password,
+	}
+	res, err := service.Login(req)
+	if err != nil {
+		return c.JSON(res.Status, model.ResponseError{Error: err.Error()})
+	}
+	return c.JSON(res.Status, res)
+}

@@ -19,6 +19,11 @@ type RegisterUserReq struct {
 	Password string `json:"password,required"`
 }
 
+type LoginUserReq struct {
+	Email    string
+	Password string
+}
+
 type RegisterUserRes struct {
 	Response `json:"-"`
 	Id       int64  `json:"id"`
@@ -30,6 +35,11 @@ type GetProfileUserRes struct {
 	Response `json:"-"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
+}
+
+type LoginUserRes struct {
+	Response
+	Token string
 }
 
 type InsertUserDb struct {

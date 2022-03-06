@@ -15,6 +15,7 @@ import (
 type UserService interface {
 	Register(req *model.RegisterUserReq) (*model.RegisterUserRes, error)
 	GetProfile(id int64) (*model.GetProfileUserRes, error)
+	Login(req *model.LoginUserReq) (*model.LoginUserRes, error)
 }
 
 type service struct {
@@ -95,4 +96,9 @@ func (s *service) GetProfile(id int64) (*model.GetProfileUserRes, error) {
 	}
 	log.Infof("success fetch user from repository: %s", res.Email)
 	return res, nil
+}
+
+func (s *service) Login(req *model.LoginUserReq) (*model.LoginUserRes, error) {
+	//TODO implement me
+	panic("implement me")
 }
