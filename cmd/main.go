@@ -7,7 +7,7 @@ import (
 	"go-vote/route"
 
 	"go-vote/config"
-	sql "go-vote/db"
+	sql "go-vote/infra/db"
 )
 
 func main() {
