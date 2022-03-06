@@ -1,7 +1,7 @@
 package user_route
 
 import (
-	"database/sql"
+	"go-vote/infra"
 
 	"github.com/labstack/echo/v4"
 
@@ -12,8 +12,8 @@ const (
 	groupPrefix = "users"
 )
 
-func Init(e *echo.Echo, db *sql.DB) {
-	user_handler.Init(db)
+func Init(e *echo.Echo, inf *infra.Infra) {
+	user_handler.Init(inf)
 	group := e.Group(groupPrefix)
 	group.POST("/register", user_handler.Register)
 }

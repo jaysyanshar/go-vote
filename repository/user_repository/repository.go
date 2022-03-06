@@ -3,6 +3,8 @@ package user_repository
 import (
 	"database/sql"
 	"errors"
+	"github.com/go-redis/redis/v8"
+	"go-vote/infra"
 
 	"github.com/labstack/gommon/log"
 
@@ -16,11 +18,12 @@ type UserRepository interface {
 }
 
 type repository struct {
-	Db *sql.DB
+	Db    *sql.DB
+	Redis *redis.Client
 }
 
-func Init(db *sql.DB) UserRepository {
-	repo := &repository{db}
+func Init(inf *infra.Infra) UserRepository {
+	repo := &repository{inf.Db, inf.Redis}
 	return repo
 }
 

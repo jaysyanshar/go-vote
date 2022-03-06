@@ -6,11 +6,16 @@ import (
 )
 
 type Config struct {
-	ServicePort             int    `mapstructure:"SERVICE_PORT"`
+	ServicePort int `mapstructure:"SERVICE_PORT"`
+
 	DbDriver                string `mapstructure:"DB_DRIVER"`
 	DbSource                string `mapstructure:"DB_SOURCE"`
 	DbConnMaxLifetimeMinute int    `mapstructure:"DB_CONN_MAX_LIFETIME_MINUTE"`
 	DbMaxOpenIdleConn       int    `mapstructure:"DB_MAX_OPEN_IDLE_CONN"`
+
+	RedisAddress  string `mapstructure:"REDIS_ADDRESS"`
+	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
+	RedisDb       int    `mapstructure:"REDIS_DB"`
 }
 
 const (
@@ -19,7 +24,7 @@ const (
 	configType = "env"
 )
 
-func LoadConfig() (config *Config, err error) {
+func Init() (config *Config, err error) {
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName(configName)
 	viper.SetConfigType(configType)
