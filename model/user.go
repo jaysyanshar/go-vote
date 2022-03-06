@@ -26,6 +26,12 @@ type RegisterUserRes struct {
 	Email    string `json:"email"`
 }
 
+type GetProfileUserRes struct {
+	Response `json:"-"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+}
+
 type InsertUserDb struct {
 	Name     sql.NullString
 	Email    string

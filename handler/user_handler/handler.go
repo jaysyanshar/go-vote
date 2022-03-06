@@ -1,10 +1,10 @@
 package user_handler
 
 import (
-	"go-vote/infra"
-	"net/http"
-
 	"github.com/labstack/echo/v4"
+	"go-vote/infra"
+	"go-vote/util/convert"
+	"net/http"
 
 	"go-vote/model"
 	"go-vote/repository/user_repository"
@@ -24,6 +24,19 @@ func Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, model.ResponseError{Error: err.Error()})
 	}
 	res, err := service.Register(req)
+	if err != nil {
+		return c.JSON(res.Status, model.ResponseError{Error: err.Error()})
+	}
+	return c.JSON(res.Status, res)
+}
+
+func GetProfile(c echo.Context) error {
+	param := c.Param("id")
+	id, err := convert.StrToInt64(param)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, model.ResponseError{Error: err.Error()})
+	}
+	res, err := service.GetProfile(id)
 	if err != nil {
 		return c.JSON(res.Status, model.ResponseError{Error: err.Error()})
 	}

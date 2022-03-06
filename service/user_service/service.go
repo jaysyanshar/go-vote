@@ -14,6 +14,7 @@ import (
 
 type UserService interface {
 	Register(req *model.RegisterUserReq) (*model.RegisterUserRes, error)
+	GetProfile(id int64) (*model.GetProfileUserRes, error)
 }
 
 type service struct {
@@ -71,5 +72,27 @@ func (s *service) Register(req *model.RegisterUserReq) (*model.RegisterUserRes, 
 		},
 	}
 	log.Infof("successfully registered user with id %v", id)
+	return res, nil
+}
+
+func (s *service) GetProfile(id int64) (*model.GetProfileUserRes, error) {
+	res := &model.GetProfileUserRes{}
+	if id < 1 {
+		log.Warnf("user id should be greater than 0")
+		res.Response = model.Response{Status: http.StatusBadRequest}
+		return res, errors.New("user id should be greater than 0")
+	}
+	data, err := s.Repo.FindById(id)
+	if err != nil {
+		log.Errorf("error fetch user from repository: %v", err)
+		res.Response = model.Response{Status: http.StatusInternalServerError}
+		return res, err
+	}
+	res = &model.GetProfileUserRes{
+		Response: model.Response{Status: http.StatusOK},
+		Name:     data.Name.String,
+		Email:    data.Email,
+	}
+	log.Infof("success fetch user from repository: %s", res.Email)
 	return res, nil
 }

@@ -16,4 +16,5 @@ func Init(e *echo.Echo, inf *infra.Infra) {
 	user_handler.Init(inf)
 	group := e.Group(groupPrefix)
 	group.POST("/register", user_handler.Register)
+	group.GET("/profile/:id", user_handler.GetProfile)
 }
