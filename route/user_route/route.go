@@ -1,11 +1,9 @@
 package user_route
 
 import (
-	"go-vote/infra"
-
 	"github.com/labstack/echo/v4"
-
 	"go-vote/handler/user_handler"
+	"go-vote/infra"
 )
 
 const (

@@ -2,12 +2,10 @@ package db
 
 import (
 	"database/sql"
-	"time"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/gommon/log"
-
 	"go-vote/config"
+	"time"
 )
 
 func Init(cfg config.Config) (*sql.DB, error) {
