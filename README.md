@@ -21,6 +21,7 @@ Voting App backend built with Go.
 you have 2 ways to vote:
 1. login to your account at `/auth/login`
 2. login and go to `/vote/commit` and pass the vote id
+
 or you can:
 1. go to `/vote/commit` and pass the vote id followed by the ballot token
 
