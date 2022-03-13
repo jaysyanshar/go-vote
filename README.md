@@ -39,21 +39,31 @@ Voting App backend built with Go.
 
 ### How to add or remove voters
 1. login with your account at `/auth/login`
-2. to add/remove voters, you can go to `/voters/specify` and specify the user email, allow email domain, and/or set the number of ballots to be generated
+2. to add/remove voters, you can go to `voting/voters/specify/:voting_id` and specify the user email, allow email domain, and/or set the number of ballots to be generated
+
+### How to update voting status
+1. login with your account at `/auth/login`
+2. to finalize voting preferences, use `/voting/finalize/:voting_id`
+3. to open the voting, use `/voting/open/:voting_id`
+4. to cancel voting, use `/voting/cancel/:voting_id`
+
+### How to get the ballot tokens
+1. login as admin of the voting at `/auth/login`
+2. finalize the voting preferences (if not finalized yet) at `/voting/finalize/:voting_id`
+3. get the ballot tokens at `/voting/get_ballots`
 
 ### How to vote
 you have 2 ways to vote:
 1. login to your account at `/auth/login`
-2. login and go to `/voting/vote` and pass the voting id
+2. login and go to `/voting/vote/:voting_id`
 
 or you can:
-1. go to `/voting/vote` and pass the voting id followed by the ballot token
+1. go to `/voting/vote/:id` and pass the ballot token on its body
 
 ### How to get voting details
-1. to get the voting's summary, go to `/voting/summary` and pass the voting id
-2. if you set the voting's settings for voters to be known, you can get the voters email at `/voting/voters` using the voting id
+1. to get the voting's summary, go to `/voting/summary/:voting_id`
+2. if you set the voters visibility to be known, you can get the voters email at `/voting
+/:voting_id`
 
 ### How to update a voting
-1. to adjust the voting deadline, you can go to `/voting/adjust_deadline`
-2. to close the voting immediately, go to `/voting/close`
-3. 
+1. to update the voting preferences, you can go to `/voting/update/:id`
