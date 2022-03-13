@@ -18,28 +18,28 @@ Voting App backend built with Go.
 
 ## The Business Rules
 1. Admin can set the voting preferences like voting deadline, voters, voting visibility, voters visibility
-2. Admin can add the voters and generate ballot tokens when the voting has not been finalized yet
+2. Admin can add the voters and generate ballot tokens when the voting has not been finalized (status "ready") yet
 3. Admin can remove voters when the voting has not been finalized yet
 4. Admin can set the number of ballots to be generated when the voting has not been finalized yet
 5. Admin can shorten the voting deadline when the voting has not been finalized yet
 6. Admin can extend the voting deadline when the voting has not meet the 90% votes
 7. Admin can change the voting visibility from private to public, but cannot otherwise
 8. Admin can change the voters visibility from known to anonymous anytime
-9. Admin can change the voters visibility from anonymous to known when the voting has no ballot tokens generated and when the voting has not been finalized yet
-10. 
+9. Admin can change the voters visibility from anonymous to known when the voting has no ballot tokens and when the voting has not been finalized yet
+10. Voters can vote the voting only when the voting status is "opened"
+11. Voters can only vote when they're invited or has ballots for the voting
+12. Users can only see the votings only when they're the one that created it or when they're invited to vote for it
+13. The anonymous users can only see the votings when they have the ballot tokens of the voting
 
 ## How To
 ### How to make a voting
-1. create an account at `/user/register`
+1. create an account at `/user/register` and/or login at `/auth/login`
 2. make a voting using the account at `/voting/create`
 3. you will get the voting id as the return
 
 ### How to add or remove voters
 1. login with your account at `/auth/login`
-2. to add voters, you can:
-    - invite the other users by using their email at `/voters/invite`
-    - or if you set the voting's voters to be anonymous, you can generate ballots tokens to be used by other users anonymously at `/voters/make_ballots`
-3. to remove voters, you can go to `/voters/uninvite`. you can only remove the voters who hasn't voted yet.
+2. to add/remove voters, you can go to `/voters/specify` and specify the user email, allow email domain, and/or set the number of ballots to be generated
 
 ### How to vote
 you have 2 ways to vote:
@@ -54,7 +54,6 @@ or you can:
 2. if you set the voting's settings for voters to be known, you can get the voters email at `/voting/voters` using the voting id
 
 ### How to update a voting
-1. 
-2. to adjust the voting deadline, you can go to `/voting/adjust_deadline`
-3. to close the voting immediately, go to `/voting/close`
-4. 
+1. to adjust the voting deadline, you can go to `/voting/adjust_deadline`
+2. to close the voting immediately, go to `/voting/close`
+3. 
