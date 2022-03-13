@@ -22,8 +22,8 @@ type Config struct {
 }
 
 const (
-	configPath = "./Config/"
-	configName = "Config"
+	configPath = "./config/"
+	configName = "config"
 	configType = "env"
 )
 

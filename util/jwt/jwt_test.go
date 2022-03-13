@@ -19,6 +19,7 @@ func TestCreateToken(t *testing.T) {
 
 	tcs := []test.Case{
 		{
+			Name: "Expect Success",
 			Input: model.User{
 				Id:       1,
 				Name:     "User",
