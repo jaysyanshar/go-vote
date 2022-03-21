@@ -33,6 +33,10 @@ func Get() *Config {
 	return config
 }
 
+func Set(cfg *Config) {
+	config = cfg
+}
+
 func Init() (*Config, error) {
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName(configName)
