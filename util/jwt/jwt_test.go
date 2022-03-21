@@ -8,7 +8,9 @@ import (
 )
 
 func TestCreateToken(t *testing.T) {
+	test.Init()
 	handler := func(t *testing.T, c test.Case) {
+		defer test.HandlePanic(t, c.Error)
 		actual, err := CreateToken(c.Input.(model.User))
 		if err != nil {
 			assert.True(t, c.Error)
@@ -28,6 +30,12 @@ func TestCreateToken(t *testing.T) {
 			},
 			Expected: nil,
 			Error:    false,
+		},
+		{
+			Name:     "Expect Error",
+			Input:    nil,
+			Expected: nil,
+			Error:    true,
 		},
 	}
 
