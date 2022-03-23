@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-
 	"go-vote/infra"
 	"go-vote/route"
 )

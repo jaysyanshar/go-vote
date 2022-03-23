@@ -4,12 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/go-redis/redis/v8"
+	"github.com/labstack/gommon/log"
 	"go-vote/infra"
 	"go-vote/infra/db"
 	redis2 "go-vote/infra/redis"
-
-	"github.com/labstack/gommon/log"
-
 	"go-vote/model"
 )
 

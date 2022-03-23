@@ -8,6 +8,11 @@ import (
 type Config struct {
 	ServicePort int `mapstructure:"SERVICE_PORT"`
 
+	AccessSecret              string `mapstructure:"ACCESS_SECRET"`
+	TokenExpirationMinute     int    `mapstructure:"TOKEN_EXPIRATION_MINUTE"`
+	RefreshSecret             string `mapstructure:"REFRESH_SECRET"`
+	RefreshTokenExpirationDay int    `mapstructure:"REFRESH_TOKEN_EXPIRATION_DAY"`
+
 	DbDriver                string `mapstructure:"DB_DRIVER"`
 	DbSource                string `mapstructure:"DB_SOURCE"`
 	DbConnMaxLifetimeMinute int    `mapstructure:"DB_CONN_MAX_LIFETIME_MINUTE"`
@@ -19,25 +24,35 @@ type Config struct {
 }
 
 const (
-	configPath = "./Config/"
-	configName = "Config"
+	configPath = "./config/"
+	configName = "config"
 	configType = "env"
 )
 
-func Init() (config *Config, err error) {
+var config *Config
+
+func Get() *Config {
+	return config
+}
+
+func Set(cfg *Config) {
+	config = cfg
+}
+
+func Init() (*Config, error) {
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName(configName)
 	viper.SetConfigType(configType)
 
 	viper.AutomaticEnv()
 
-	err = viper.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
 		log.Errorf("failed to read config: %v", err)
-		return
+		return nil, err
 	}
 
 	err = viper.Unmarshal(&config)
 	log.Infof("config successfully read")
-	return
+	return Get(), nil
 }

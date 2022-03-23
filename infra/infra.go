@@ -2,10 +2,8 @@ package infra
 
 import (
 	"database/sql"
-
 	"github.com/go-redis/redis/v8"
 	"github.com/labstack/gommon/log"
-
 	"go-vote/config"
 	sql2 "go-vote/infra/db"
 	redis2 "go-vote/infra/redis"

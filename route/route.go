@@ -1,10 +1,9 @@
 package route
 
 import (
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go-vote/infra"
-
-	"github.com/labstack/echo/v4"
 	"go-vote/route/user_route"
 )
 
