@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/labstack/gommon/log"
+	"go-vote/config"
 	"go-vote/model"
 	repo "go-vote/repository/user_repository"
 	"go-vote/util/crypto"
@@ -16,6 +17,7 @@ type UserService interface {
 	Register(req *model.RegisterUserReq) (*model.RegisterUserRes, error)
 	GetProfile(id int64) (*model.GetProfileUserRes, error)
 	Login(req *model.LoginUserReq) (*model.LoginUserRes, error)
+	Refresh(req *model.RefreshUserReq) (*model.RefreshUserRes, error)
 }
 
 type service struct {
@@ -118,7 +120,46 @@ func (s *service) Login(req *model.LoginUserReq) (*model.LoginUserRes, error) {
 		return res, err
 	}
 
+	refresh, err := jwt.CreateRefreshToken(user.ToUser())
+	if err != nil {
+		log.Errorf("failed to create refresh token: %v", err)
+		res.Response = response.MakeResponse(http.StatusInternalServerError)
+		return res, err
+	}
+
 	res.AccessToken = token
+	res.RefreshToken = refresh
 	log.Infof("login success with user id %v", user.Id)
+	return res, nil
+}
+
+func (s *service) Refresh(req *model.RefreshUserReq) (*model.RefreshUserRes, error) {
+	cfg := config.Get()
+	res := &model.RefreshUserRes{}
+
+	auth, err := jwt.ParseToken(req.RefreshToken, cfg.RefreshSecret)
+	if err != nil {
+		log.Errorf("failed to parse token: %v", err)
+		res.Response = response.MakeResponse(http.StatusInternalServerError)
+		return res, err
+	}
+	user := auth.ToUser()
+	token, err := jwt.CreateToken(user)
+	if err != nil {
+		log.Errorf("failed to create token: %v", err)
+		res.Response = response.MakeResponse(http.StatusInternalServerError)
+		return res, err
+	}
+
+	refresh, err := jwt.CreateRefreshToken(user)
+	if err != nil {
+		log.Errorf("failed to create refresh token: %v", err)
+		res.Response = response.MakeResponse(http.StatusInternalServerError)
+		return res, err
+	}
+
+	res.AccessToken = token
+	res.RefreshToken = refresh
+	log.Infof("refresh success with user id %v", user.Id)
 	return res, nil
 }

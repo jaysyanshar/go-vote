@@ -24,6 +24,10 @@ type LoginUserReq struct {
 	Password string
 }
 
+type RefreshUserReq struct {
+	RefreshToken string
+}
+
 type RegisterUserRes struct {
 	response.Response `json:"-"`
 	Id                int64  `json:"id"`
@@ -40,7 +44,13 @@ type GetProfileUserRes struct {
 type LoginUserRes struct {
 	response.Response `json:"-"`
 	AccessToken       string `json:"accessToken"`
-	RefreshToken      string `json:"refreshToken"` //todo: implement refresh token
+	RefreshToken      string `json:"-"`
+}
+
+type RefreshUserRes struct {
+	response.Response `json:"-"`
+	AccessToken       string `json:"accessToken"`
+	RefreshToken      string `json:"-"`
 }
 
 type InsertUserDb struct {
