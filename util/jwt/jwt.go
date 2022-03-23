@@ -2,29 +2,10 @@ package jwt
 
 import (
 	"github.com/golang-jwt/jwt"
-	"github.com/labstack/echo/v4/middleware"
 	"go-vote/config"
 	"go-vote/model"
-	"go-vote/util/constant"
 	"time"
 )
-
-func GetAccessConfig() middleware.JWTConfig {
-	cfg := config.Get()
-	return middleware.JWTConfig{
-		SigningKey: []byte(cfg.AccessSecret),
-		Claims:     &model.Auth{},
-	}
-}
-
-func GetRefreshConfig() middleware.JWTConfig {
-	cfg := config.Get()
-	return middleware.JWTConfig{
-		SigningKey:  []byte(cfg.RefreshSecret),
-		TokenLookup: "cookie:" + constant.HttpCookieRefreshToken,
-		Claims:      &model.Auth{},
-	}
-}
 
 func ParseToken(token, secret string) (*model.Auth, error) {
 	claims := &model.Auth{}

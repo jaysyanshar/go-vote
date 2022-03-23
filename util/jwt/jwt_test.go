@@ -8,20 +8,6 @@ import (
 	"testing"
 )
 
-func TestGetAccessConfig(t *testing.T) {
-	test.Init()
-	cfg := config.Get()
-	actual := GetAccessConfig()
-	assert.Equal(t, []byte(cfg.AccessSecret), actual.SigningKey)
-}
-
-func TestGetRefreshConfig(t *testing.T) {
-	test.Init()
-	cfg := config.Get()
-	actual := GetRefreshConfig()
-	assert.Equal(t, []byte(cfg.RefreshSecret), actual.SigningKey)
-}
-
 func TestCreateToken(t *testing.T) {
 	test.Init()
 	handler := func(t *testing.T, c test.Case) {
