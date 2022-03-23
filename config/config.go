@@ -8,8 +8,10 @@ import (
 type Config struct {
 	ServicePort int `mapstructure:"SERVICE_PORT"`
 
-	AccessSecret          string `mapstructure:"ACCESS_SECRET"`
-	TokenExpirationMinute int    `mapstructure:"TOKEN_EXPIRATION_MINUTE"`
+	AccessSecret              string `mapstructure:"ACCESS_SECRET"`
+	TokenExpirationMinute     int    `mapstructure:"TOKEN_EXPIRATION_MINUTE"`
+	RefreshSecret             string `mapstructure:"REFRESH_SECRET"`
+	RefreshTokenExpirationDay int    `mapstructure:"REFRESH_TOKEN_EXPIRATION_DAY"`
 
 	DbDriver                string `mapstructure:"DB_DRIVER"`
 	DbSource                string `mapstructure:"DB_SOURCE"`
