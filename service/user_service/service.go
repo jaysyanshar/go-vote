@@ -12,7 +12,6 @@ import (
 	"go-vote/util/jwt"
 	"go-vote/util/response"
 	"net/http"
-	"time"
 )
 
 type UserService interface {
@@ -119,9 +118,7 @@ func (s *service) Login(req *model.LoginUserReq) (*model.LoginUserRes, error) {
 	insertAuth := &model.InsertAuthDb{
 		UserId:    user.Id,
 		IpAddress: req.IpAddress,
-		CreatedAt: time.Now().String(),
 		ExpiredAt: jwt.GetRefreshTokenExpiration(),
-		IsRevoked: false,
 	}
 	authId, err := s.AuthRepo.Insert(insertAuth)
 	if err != nil {

@@ -19,9 +19,7 @@ type Auth struct {
 type InsertAuthDb struct {
 	UserId    int64
 	IpAddress string
-	CreatedAt string
 	ExpiredAt string
-	IsRevoked bool
 }
 
 type UpdateAuthDb struct {
