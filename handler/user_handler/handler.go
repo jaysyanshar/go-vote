@@ -47,9 +47,11 @@ func GetProfile(c echo.Context) error {
 func Login(c echo.Context) error {
 	username := c.Request().Header.Get(constant.HttpHeaderUsername)
 	password := c.Request().Header.Get(constant.HttpHeaderPassword)
+	ip := c.RealIP()
 	req := &model.LoginUserReq{
-		Email:    username,
-		Password: password,
+		Email:     username,
+		Password:  password,
+		IpAddress: ip,
 	}
 	res, err := service.Login(req)
 	if err != nil {
@@ -62,7 +64,11 @@ func Login(c echo.Context) error {
 
 func Refresh(c echo.Context) error {
 	refresh, _ := c.Cookie(constant.HttpCookieRefreshToken)
-	req := &model.RefreshUserReq{RefreshToken: refresh.Value}
+	ip := c.RealIP()
+	req := &model.RefreshUserReq{
+		RefreshToken: refresh.Value,
+		IpAddress:    ip,
+	}
 	res, err := service.Refresh(req)
 	if err != nil {
 		return c.JSON(res.Status, response.MakeErrorResponse(err.Error()))

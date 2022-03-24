@@ -113,14 +113,14 @@ func (s *service) Login(req *model.LoginUserReq) (*model.LoginUserRes, error) {
 		return res, errors.New("invalid password")
 	}
 
-	token, err := jwt.CreateToken(user.ToUser())
+	token, err := jwt.CreateToken(user.ToUser(), req.IpAddress)
 	if err != nil {
 		log.Errorf("failed to create token: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
 		return res, err
 	}
 
-	refresh, err := jwt.CreateRefreshToken(user.ToUser())
+	refresh, err := jwt.CreateRefreshToken(user.ToUser(), req.IpAddress)
 	if err != nil {
 		log.Errorf("failed to create refresh token: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
@@ -143,15 +143,20 @@ func (s *service) Refresh(req *model.RefreshUserReq) (*model.RefreshUserRes, err
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
 		return res, err
 	}
+	if auth.IpAddress != req.IpAddress {
+		log.Warnf("ip address is different from existing")
+		res.Response = response.MakeResponse(http.StatusUnauthorized)
+		return res, errors.New("ip address is different from existing, please login again")
+	}
 	user := auth.ToUser()
-	token, err := jwt.CreateToken(user)
+	token, err := jwt.CreateToken(user, auth.IpAddress)
 	if err != nil {
 		log.Errorf("failed to create token: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
 		return res, err
 	}
 
-	refresh, err := jwt.CreateRefreshToken(user)
+	refresh, err := jwt.CreateRefreshToken(user, auth.IpAddress)
 	if err != nil {
 		log.Errorf("failed to create refresh token: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)

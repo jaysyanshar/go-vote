@@ -10,9 +10,10 @@ import (
 
 func TestCreateToken(t *testing.T) {
 	test.Init()
+	ip := "::1"
 	handler := func(t *testing.T, c test.Case) {
 		defer test.HandlePanic(t, c.Error)
-		actual, err := CreateToken(c.Input.(model.User))
+		actual, err := CreateToken(c.Input.(model.User), ip)
 		if err != nil {
 			assert.True(t, c.Error)
 			return
@@ -49,9 +50,10 @@ func TestCreateToken(t *testing.T) {
 
 func TestCreateRefreshToken(t *testing.T) {
 	test.Init()
+	ip := "::1"
 	handler := func(t *testing.T, c test.Case) {
 		defer test.HandlePanic(t, c.Error)
-		actual, err := CreateRefreshToken(c.Input.(model.User))
+		actual, err := CreateRefreshToken(c.Input.(model.User), ip)
 		if err != nil {
 			assert.True(t, c.Error)
 			return
@@ -89,11 +91,12 @@ func TestCreateRefreshToken(t *testing.T) {
 func TestParseToken(t *testing.T) {
 	test.Init()
 	cfg := config.Get()
+	ip := "::1"
 
 	handler := func(t *testing.T, c test.Case) {
 		defer test.HandlePanic(t, c.Error)
 		input := c.Input.(model.User)
-		token, _ := CreateToken(input)
+		token, _ := CreateToken(input, ip)
 		actual, err := ParseToken(token, cfg.AccessSecret)
 		if err != nil {
 			assert.True(t, c.Error)

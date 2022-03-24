@@ -11,6 +11,7 @@ type Auth struct {
 	Name      string `json:"name,omitempty"`
 	CreatedAt int64  `json:"createdAt"`
 	ExpiredAt int64  `json:"expiredAt"`
+	IpAddress string `json:"ipAddress"`
 }
 
 func (a *Auth) Valid() error {

@@ -20,12 +20,14 @@ type RegisterUserReq struct {
 }
 
 type LoginUserReq struct {
-	Email    string
-	Password string
+	Email     string
+	Password  string
+	IpAddress string
 }
 
 type RefreshUserReq struct {
 	RefreshToken string
+	IpAddress    string
 }
 
 type RegisterUserRes struct {

@@ -18,23 +18,24 @@ func ParseToken(token, secret string) (*model.Auth, error) {
 	return claims, nil
 }
 
-func CreateToken(user model.User) (string, error) {
+func CreateToken(user model.User, ipAddress string) (string, error) {
 	cfg := config.Get()
-	return createToken(user, cfg.AccessSecret, time.Now().Add(time.Minute*time.Duration(cfg.TokenExpirationMinute)).Unix())
+	return createToken(user, ipAddress, cfg.AccessSecret, time.Now().Add(time.Minute*time.Duration(cfg.TokenExpirationMinute)).Unix())
 }
 
-func CreateRefreshToken(user model.User) (string, error) {
+func CreateRefreshToken(user model.User, ipAddress string) (string, error) {
 	cfg := config.Get()
-	return createToken(user, cfg.RefreshSecret, time.Now().Add(24*time.Hour*time.Duration(cfg.RefreshTokenExpirationDay)).Unix())
+	return createToken(user, ipAddress, cfg.RefreshSecret, time.Now().Add(24*time.Hour*time.Duration(cfg.RefreshTokenExpirationDay)).Unix())
 }
 
-func createToken(user model.User, secret string, expiredAt int64) (string, error) {
+func createToken(user model.User, ipAddress, secret string, expiredAt int64) (string, error) {
 	claims := &model.Auth{
 		Id:        user.Id,
 		Email:     user.Email,
 		Name:      user.Name,
 		CreatedAt: time.Now().Unix(),
 		ExpiredAt: expiredAt,
+		IpAddress: ipAddress,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(secret))
