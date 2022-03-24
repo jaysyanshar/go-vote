@@ -8,3 +8,12 @@ create table if not exists users (
     email varchar(100) not null unique,
     password varchar(255) not null
 );
+
+create table if not exists sessions (
+    id bigint auto_increment not null primary key,
+    userId bigint not null references users(id),
+    ipAddress varchar(25) not null,
+    createdAt datetime not null default now(),
+    expiredAt datetime not null,
+    isRevoked bool not null default false
+);
