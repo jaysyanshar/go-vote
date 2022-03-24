@@ -37,44 +37,46 @@ Voting App backend built with Go. (still on progress)
 ## How To
 ### How to manage an account
 1. Create an account at `POST /user/register`
-2. Get an account details at `GET /user/profile/:user_email`
-3. Update your account at `PUT /user/update/:user_email`
+2. Get an account details at `GET /user/profile/:user_id`
+3. Update your account at `PUT /user/update/:user_id` (N/A)
 4. Login at `POST /auth/login`
-5. Refresh session at `PUT /auth/refresh/:session_id`
-6. Logout at `PUT /auth/logout/:session_id`
+5. Refresh session at `PUT /auth/refresh`
+6. Logout at `PUT /auth/logout` (N/A)
 
 ### How to make a voting
 1. login to your account
-2. make a voting using the account at `POST /voting/create`
+2. make a voting using the account at `POST /voting/create` (N/A)
 3. you will get the voting id as the return
 
 ### How to specify voters
 1. login with your account
-2. to add voters by email, go to `POST /voting/voters/invite`
-3. to remove voters by email, go to `POST /voting/voters/uninvite`
-4. to allow organization to vote, you can use `POST /voting/voters/allow_organization`
-5. to disallow organization, use `POST /voting/voters/disallow_organization`
-6. to set the ballots to be generated, use `POST /voting/voters/set_ballots`
-7. to get the ballot tokens, finalize the voting and then use `GET /voting/voters/get_ballots/:voting_id`
+2. to add voters by email, go to `POST /voting/voters/invite` (N/A)
+3. to remove voters by email, go to `POST /voting/voters/uninvite` (N/A)
+4. to allow organization to vote, you can use `POST /voting/voters/allow_organization` (N/A)
+5. to disallow organization, use `POST /voting/voters/disallow_organization` (N/A)
+6. to set the ballots to be generated, use `POST /voting/voters/set_ballots` (N/A)
+7. to get the ballot tokens, finalize the voting and then use `GET /voting/voters/get_ballots/:voting_id` (N/A)
 
 ### How to update voting status
 1. login with your account
-2. to finalize voting preferences, use `PUT /voting/finalize/:voting_id`
-3. to open the voting, use `PUT /voting/open/:voting_id`
-4. to cancel voting, use `PUT /voting/cancel/:voting_id`
+2. to finalize voting preferences, use `PUT /voting/finalize/:voting_id` (N/A)
+3. to open the voting, use `PUT /voting/open/:voting_id` (N/A)
+4. to cancel voting, use `PUT /voting/cancel/:voting_id` (N/A)
 
 ### How to vote
 you have 2 ways to vote:
 1. login to your account
-2. go to `POST /voting/vote` and pass the voting id on its body
+2. go to `POST /voting/vote` and pass the voting id on its body (N/A)
 
 or you can:
-1. go to `POST /voting/vote` anonymously and pass the voting id and ballot token on its body
+1. go to `POST /voting/vote` anonymously and pass the voting id and ballot token on its body (N/A)
 
 ### How to get voting details
-1. to get the voting's summary, go to `GET /voting/summary/:voting_id` or `GET /voting/summary/by_ballot/:ballot_id`
-2. if you set the voters visibility to be known, you can get the voters email at `GET /voting/voters/:voting_id`
-3. to get the list of votings and filter it, go to `POST /voting/filter`
+1. to get the voting summary, go to
+   - `GET /voting/summary/:voting_id` or (N/A)
+   - `GET /voting/summary/by_ballot/:ballot_id` (N/A)
+2. if you set the voter visibility to be known, you can get the voters email at `GET /voting/voters/:voting_id` (N/A)
+3. to get the list of voting and filter it, go to `POST /voting/filter` (N/A)
 
 ### How to update a voting
-1. to update the voting preferences, you can go to `PUT /voting/update/:id`
+1. to update the voting preferences, you can go to `PUT /voting/update/:voting_id` (N/A)
