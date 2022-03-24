@@ -6,11 +6,13 @@ import (
 	"github.com/labstack/gommon/log"
 	"go-vote/config"
 	"go-vote/model"
-	repo "go-vote/repository/user_repository"
+	"go-vote/repository/auth_repository"
+	"go-vote/repository/user_repository"
 	"go-vote/util/crypto"
 	"go-vote/util/jwt"
 	"go-vote/util/response"
 	"net/http"
+	"time"
 )
 
 type UserService interface {
@@ -21,11 +23,12 @@ type UserService interface {
 }
 
 type service struct {
-	Repo repo.UserRepository
+	UserRepo user_repository.UserRepository
+	AuthRepo auth_repository.AuthRepository
 }
 
-func Init(repo *repo.UserRepository) UserService {
-	return &service{*repo}
+func Init(userRepo *user_repository.UserRepository, authRepo *auth_repository.AuthRepository) UserService {
+	return &service{*userRepo, *authRepo}
 }
 
 func (s *service) Register(req *model.RegisterUserReq) (*model.RegisterUserRes, error) {
@@ -35,7 +38,7 @@ func (s *service) Register(req *model.RegisterUserReq) (*model.RegisterUserRes, 
 		res.Response = response.MakeResponse(http.StatusBadRequest)
 		return res, err
 	}
-	existing, _ := s.Repo.FindByEmail(req.Email)
+	existing, _ := s.UserRepo.FindByEmail(req.Email)
 	if existing != nil {
 		log.Warnf("register user cancelled; user already exists")
 		res.Response = response.MakeResponse(http.StatusNotAcceptable)
@@ -52,7 +55,7 @@ func (s *service) Register(req *model.RegisterUserReq) (*model.RegisterUserRes, 
 		Email:    req.Email,
 		Password: pw,
 	}
-	id, err := s.Repo.Insert(insert)
+	id, err := s.UserRepo.Insert(insert)
 	if err != nil {
 		log.Errorf("failed to insert to repository: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
@@ -75,7 +78,7 @@ func (s *service) GetProfile(id int64) (*model.GetProfileUserRes, error) {
 		res.Response = response.MakeResponse(http.StatusBadRequest)
 		return res, errors.New("user id should be greater than 0")
 	}
-	data, err := s.Repo.FindById(id)
+	data, err := s.UserRepo.FindById(id)
 	if err != nil {
 		log.Errorf("error fetch user from repository: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
@@ -99,7 +102,7 @@ func (s *service) Login(req *model.LoginUserReq) (*model.LoginUserRes, error) {
 		return res, err
 	}
 
-	user, err := s.Repo.FindByEmail(req.Email)
+	user, err := s.UserRepo.FindByEmail(req.Email)
 	if err != nil {
 		log.Errorf("error get user data: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
@@ -108,27 +111,41 @@ func (s *service) Login(req *model.LoginUserReq) (*model.LoginUserRes, error) {
 
 	validPassword := crypto.CheckPasswordHash(req.Password, user.Password)
 	if !validPassword {
-		log.Warnf("wrong password of user %v", user.Id)
+		log.Warnf("wrong password of user: %v", user.Id)
 		res.Response = response.MakeResponse(http.StatusNotAcceptable)
 		return res, errors.New("invalid password")
 	}
 
-	token, err := jwt.CreateToken(user.ToUser(), req.IpAddress)
+	insertAuth := &model.InsertAuthDb{
+		UserId:    user.Id,
+		IpAddress: req.IpAddress,
+		CreatedAt: time.Now().String(),
+		ExpiredAt: jwt.GetRefreshTokenExpiration(),
+		IsRevoked: false,
+	}
+	authId, err := s.AuthRepo.Insert(insertAuth)
 	if err != nil {
-		log.Errorf("failed to create token: %v", err)
+		log.Errorf("error insert auth: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
 		return res, err
 	}
 
-	refresh, err := jwt.CreateRefreshToken(user.ToUser(), req.IpAddress)
+	identity := jwt.Identity{
+		AuthId:    authId,
+		UserId:    user.Id,
+		UserEmail: user.Email,
+		UserName:  user.Name.String,
+		IpAddress: req.IpAddress,
+	}
+	accessToken, refreshToken, err := createJwt(identity)
 	if err != nil {
-		log.Errorf("failed to create refresh token: %v", err)
+		log.Errorf("error create token: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
-		return res, err
+		return nil, err
 	}
 
-	res.AccessToken = token
-	res.RefreshToken = refresh
+	res.AccessToken = accessToken
+	res.RefreshToken = refreshToken
 	log.Infof("login success with user id %v", user.Id)
 	return res, nil
 }
@@ -148,23 +165,63 @@ func (s *service) Refresh(req *model.RefreshUserReq) (*model.RefreshUserRes, err
 		res.Response = response.MakeResponse(http.StatusUnauthorized)
 		return res, errors.New("ip address is different from existing, please login again")
 	}
-	user := auth.ToUser()
-	token, err := jwt.CreateToken(user, auth.IpAddress)
+	findAuth, err := s.AuthRepo.FindById(auth.Id)
 	if err != nil {
-		log.Errorf("failed to create token: %v", err)
+		log.Errorf("error find auth: %v", err)
+		res.Response = response.MakeResponse(http.StatusInternalServerError)
+		return res, err
+	}
+	if findAuth == nil {
+		log.Warnf("unable to find existing auth session")
+		res.Response = response.MakeResponse(http.StatusUnauthorized)
+		return res, errors.New("unauthorized")
+	}
+	if findAuth.IsRevoked {
+		log.Warnf("existing auth already revoked")
+		res.Response = response.MakeResponse(http.StatusUnauthorized)
+		return res, errors.New("unauthorized")
+	}
+
+	updateAuth := &model.UpdateAuthDb{
+		Id:        auth.Id,
+		ExpiredAt: jwt.GetRefreshTokenExpiration(),
+	}
+	err = s.AuthRepo.UpdateExpired(updateAuth)
+	if err != nil {
+		log.Errorf("error update auth: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
 		return res, err
 	}
 
-	refresh, err := jwt.CreateRefreshToken(user, auth.IpAddress)
+	identity := jwt.Identity{
+		AuthId:    auth.Id,
+		UserId:    auth.UserId,
+		UserEmail: auth.Email,
+		UserName:  auth.Name,
+		IpAddress: auth.IpAddress,
+	}
+	accessToken, refreshToken, err := createJwt(identity)
 	if err != nil {
-		log.Errorf("failed to create refresh token: %v", err)
+		log.Errorf("error create token: %v", err)
 		res.Response = response.MakeResponse(http.StatusInternalServerError)
-		return res, err
+		return nil, err
 	}
 
-	res.AccessToken = token
-	res.RefreshToken = refresh
-	log.Infof("refresh success with user id %v", user.Id)
+	res.AccessToken = accessToken
+	res.RefreshToken = refreshToken
+	log.Infof("refresh success with user id %v", auth.UserId)
 	return res, nil
+}
+
+func createJwt(identity jwt.Identity) (accessToken, refreshToken string, err error) {
+	accessToken, err = jwt.CreateToken(identity)
+	if err != nil {
+		return
+	}
+
+	refreshToken, err = jwt.CreateRefreshToken(identity)
+	if err != nil {
+		return
+	}
+	return
 }

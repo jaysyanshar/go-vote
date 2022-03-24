@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go-vote/infra"
 	"go-vote/model"
+	"go-vote/repository/auth_repository"
 	"go-vote/repository/user_repository"
 	"go-vote/service/user_service"
 	"go-vote/util/constant"
@@ -15,8 +16,9 @@ import (
 var service user_service.UserService
 
 func Init(inf *infra.Infra) {
-	repo := user_repository.Init(inf)
-	service = user_service.Init(&repo)
+	userRepo := user_repository.Init(inf)
+	authRepo := auth_repository.Init(inf)
+	service = user_service.Init(&userRepo, &authRepo)
 }
 
 func Register(c echo.Context) error {
